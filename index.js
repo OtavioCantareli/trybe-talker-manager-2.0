@@ -19,6 +19,7 @@ app.listen(PORT, () => {
 
 const FILE = './talker.json';
 
+// 1
 app.get('/talker', (_req, res) => {
   try {
     const talkers = JSON.parse(fs.readFileSync(FILE, 'utf8'));
