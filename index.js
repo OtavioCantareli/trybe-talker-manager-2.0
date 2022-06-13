@@ -20,7 +20,11 @@ app.listen(PORT, () => {
 const FILE = './talker.json';
 
 app.get('/talker', (_req, res) => {
-  const talkers = JSON.parse(fs.readFileSync(FILE, 'utf8'));
-  if (!talkers) return res.status(200).send(talkers);
-  return res.status(200).send(talkers);
+  try {
+    const talkers = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+    if (!talkers) return res.status(200).send(talkers);
+    return res.status(200).send(talkers);
+  } catch (err) {
+    return res.json(err)
+  }
 });
