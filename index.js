@@ -37,7 +37,6 @@ app.get('/talker/:id', (req, res) => {
     const { id } = req.params;
     const talkers = JSON.parse(fs.readFileSync(FILE, 'utf8'));
     const talker = talkers.find((talk) => talk.id === Number(id));
-    console.log(talker);
     if (!talker) {
       return res.status(404).json({
         message: 'Pessoa palestrante não encontrada',
