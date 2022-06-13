@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const fs = require('fs');
 
 const app = express();
 app.use(bodyParser.json());
@@ -14,4 +15,12 @@ app.get('/', (_request, response) => {
 
 app.listen(PORT, () => {
   console.log('Online');
+});
+
+const FILE = './talker.json';
+
+app.get('/talker', (_req, res) => {
+  const talkers = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+  if (!talkers) return res.status(200).send(talkers);
+  return res.status(200).send(talkers);
 });
