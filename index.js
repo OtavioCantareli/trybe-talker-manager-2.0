@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const crypto = require('crypto');
 
 const app = express();
 app.use(bodyParser.json());
@@ -43,6 +44,49 @@ app.get('/talker/:id', (req, res) => {
       });
     }
     return res.status(200).send(talker);
+  } catch (err) {
+    return res.json(err);
+  }
+});
+
+// Validations
+const validEmail = (req, res, next) => {
+  const regex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+  const { email } = req.body;
+  if (!email || email === '' || email === ' ') {
+    return res.status(400).json({
+      message: 'O campo "email" é obrigatório',
+    });
+  }
+  if (!regex.test(email)) {
+    return res.status(400).json({
+      message: 'O "email" deve ter o formato "email@email.com"',
+    });
+  }
+  return next();
+};
+
+const validPW = (req, res, next) => {
+  const size = 6;
+  const { password } = req.body;
+  if (!password || password === '' || password === ' ') {
+    return res.status(400).json({
+      message: 'O campo "password" é obrigatório',
+    });
+  }
+  if (password.length < size) {
+    return res.status(400).json({
+      message: 'O "password" deve ter pelo menos 6 caracteres',
+    });
+  }
+  return next();
+};
+
+// 3
+app.post('/login', validEmail, validPW, (req, res) => {
+  try {
+    const token = crypto.randomBytes(48).toString('base64').substring(0, 16);
+    return res.status(200).json({ token });
   } catch (err) {
     return res.json(err);
   }
