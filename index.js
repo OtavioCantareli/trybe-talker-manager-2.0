@@ -48,7 +48,7 @@ app.get('/talker/:id', (req, res) => {
   }
 });
 
-// Validations
+// 4
 const validEmail = (req, res, next) => {
   const regex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g;
   const { email } = req.body;
@@ -169,14 +169,14 @@ const validDate = (req, res, next) => {
 
 const validRate = (req, res, next) => {
   const { rate } = req.body.talk;
-  if (!rate) {
-    return res.status(400).json({
-      message: 'O campo "rate" é obrigatório',
-    });
-  }
   if (rate < 1 || rate > 5) {
     return res.status(400).json({
       message: 'O campo "rate" deve ser um inteiro de 1 à 5',
+    });
+  }
+  if (!rate) {
+    return res.status(400).json({
+      message: 'O campo "rate" é obrigatório',
     });
   }
   return next();
@@ -206,5 +206,32 @@ app.post('/talker',
       return res.status(201).json(talker);
     } catch (err) {
       return res.json({ err });
+    }
+  });
+
+// 6
+app.put('/talker/:id', 
+  validToken, 
+  validName,
+  validAge,
+  validTalk,
+  validDate,
+  validRate,
+  (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, age, talk: { watchedAt, rate } } = req.body;
+      const talkers = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+      const index = talkers.findIndex((talk) => talk.id === Number(id));
+      talkers[index] = {
+        name,
+        age,
+        talk: {
+          watchedAt, rate,
+        },
+      };
+      return res.status(200).json(talkers[index]);
+    } catch (err) {
+      res.json({ err });
     }
   });
