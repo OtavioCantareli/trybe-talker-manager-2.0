@@ -210,8 +210,8 @@ app.post('/talker',
   });
 
 // 6
-app.put('/talker/:id', 
-  validToken, 
+app.put('/talker/:id',
+  validToken,
   validName,
   validAge,
   validTalk,
@@ -224,12 +224,14 @@ app.put('/talker/:id',
       const talkers = JSON.parse(fs.readFileSync(FILE, 'utf8'));
       const index = talkers.findIndex((talk) => talk.id === Number(id));
       talkers[index] = {
+        id: Number(id),
         name,
         age,
         talk: {
           watchedAt, rate,
         },
       };
+      fs.writeFileSync(FILE, JSON.stringify(talkers));
       return res.status(200).json(talkers[index]);
     } catch (err) {
       res.json({ err });
