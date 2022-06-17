@@ -182,14 +182,8 @@ const validRate = (req, res, next) => {
   return next();
 };
 
-app.post('/talker',
-  validToken,
-  validName,
-  validAge,
-  validTalk,
-  validDate,
-  validRate,
-  (req, res) => {
+app.post('/talker', validToken, validName, validAge,
+  validTalk, validDate, validRate, (req, res) => {
     try {
       const { name, age, talk: { watchedAt, rate } } = req.body;
       const talkers = JSON.parse(fs.readFileSync(FILE, 'utf8'));
@@ -210,14 +204,8 @@ app.post('/talker',
   });
 
 // 6
-app.put('/talker/:id',
-  validToken,
-  validName,
-  validAge,
-  validTalk,
-  validDate,
-  validRate,
-  (req, res) => {
+app.put('/talker/:id', validToken, validName, validAge,
+  validTalk, validDate, validRate, (req, res) => {
     try {
       const { id } = req.params;
       const { name, age, talk: { watchedAt, rate } } = req.body;
@@ -234,6 +222,20 @@ app.put('/talker/:id',
       fs.writeFileSync(FILE, JSON.stringify(talkers));
       return res.status(200).json(talkers[index]);
     } catch (err) {
-      res.json({ err });
+      return res.json({ err });
     }
   });
+
+// 7
+app.delete('/talker/:id', validToken, (req, res) => {
+  try {
+    const { id } = req.params;
+    const talkers = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+    const index = talkers.findIndex((talk) => talk.id === Number(id));
+    talkers.splice(index, 1);
+    fs.writeFileSync(FILE, JSON.stringify(talkers));
+    return res.status(204).send();
+  } catch (err) {
+    return res.json({ err });
+  }
+});
