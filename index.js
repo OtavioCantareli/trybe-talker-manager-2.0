@@ -31,23 +31,6 @@ app.get('/talker', (_req, res) => {
   }
 });
 
-// 2
-app.get('/talker/:id', (req, res) => {
-  try {
-    const { id } = req.params;
-    const talkers = JSON.parse(fs.readFileSync(FILE, 'utf8'));
-    const talker = talkers.find((talk) => talk.id === Number(id));
-    if (!talker) {
-      return res.status(404).json({
-        message: 'Pessoa palestrante não encontrada',
-      });
-    }
-    return res.status(200).send(talker);
-  } catch (err) {
-    return res.json({ err });
-  }
-});
-
 // 4
 const validEmail = (req, res, next) => {
   const regex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g;
@@ -128,11 +111,7 @@ const validName = (req, res, next) => {
 const validAge = (req, res, next) => {
   const minAge = 18;
   const { age } = req.body;
-  if (!age || age === '') {
-    return res.status(400).json({
-      message: 'O campo "age" é obrigatório',
-    });
-  }
+  if (!age || age === '') return res.status(400).json({ message: 'O campo "age" é obrigatório' });
   if (age < minAge) {
     return res.status(400).json({
       message: 'A pessoa palestrante deve ser maior de idade',
@@ -143,20 +122,14 @@ const validAge = (req, res, next) => {
 
 const validTalk = (req, res, next) => {
   const { talk } = req.body;
-  if (!talk) {
-    return res.status(400).json({
-      message: 'O campo "talk" é obrigatório',
-    });
-  }
+  if (!talk) return res.status(400).json({ message: 'O campo "talk" é obrigatório' });
   return next();
 };
 
 const validDate = (req, res, next) => {
   const { watchedAt } = req.body.talk;
   if (!watchedAt) {
-    return res.status(400).json({
-      message: 'O campo "watchedAt" é obrigatório',
-    });
+    return res.status(400).json({ message: 'O campo "watchedAt" é obrigatório' });
   }
   const regex = /^\d{2}[/]\d{2}[/]\d{4}$/;
   if (!regex.test(watchedAt)) {
@@ -170,15 +143,9 @@ const validDate = (req, res, next) => {
 const validRate = (req, res, next) => {
   const { rate } = req.body.talk;
   if (rate < 1 || rate > 5) {
-    return res.status(400).json({
-      message: 'O campo "rate" deve ser um inteiro de 1 à 5',
-    });
+    return res.status(400).json({ message: 'O campo "rate" deve ser um inteiro de 1 à 5' });
   }
-  if (!rate) {
-    return res.status(400).json({
-      message: 'O campo "rate" é obrigatório',
-    });
-  }
+  if (!rate) return res.status(400).json({ message: 'O campo "rate" é obrigatório' });
   return next();
 };
 
@@ -235,6 +202,36 @@ app.delete('/talker/:id', validToken, (req, res) => {
     talkers.splice(index, 1);
     fs.writeFileSync(FILE, JSON.stringify(talkers));
     return res.status(204).send();
+  } catch (err) {
+    return res.json({ err });
+  }
+});
+
+app.get('/talker/search', validToken, (req, res) => {
+  try {
+    const { q } = req.query;
+    const talkers = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+    if (!q || q === '') return res.status(200).json(talkers);
+    const filtered = talkers.filter((talk) => talk.name.includes(q));
+    if (!filtered) return res.status(200).json([]);
+    return res.status(200).json(filtered);
+  } catch (err) {
+    return res.json({ err });
+  }
+});
+
+// 2
+app.get('/talker/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const talkers = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+    const talker = talkers.find((talk) => talk.id === Number(id));
+    if (!talker) {
+      return res.status(404).json({
+        message: 'Pessoa palestrante não encontrada',
+      });
+    }
+    return res.status(200).send(talker);
   } catch (err) {
     return res.json({ err });
   }
