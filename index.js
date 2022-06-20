@@ -207,6 +207,7 @@ app.delete('/talker/:id', validToken, (req, res) => {
   }
 });
 
+// 8
 app.get('/talker/search', validToken, (req, res) => {
   try {
     const { q } = req.query;
